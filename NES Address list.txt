@@ -1,0 +1,185 @@
+Sorted by Address
+	PRG ROM
+		$3E00 - Start of palette stored in rom
+
+	PPU
+		Core registers
+			$2000	- control?
+			$2001	- mask?
+			$2002	- status?
+		Sprite DMA registers
+			$2003	- OAM address signifier		<--- Can be used to determine address sprite data will be copied to in OAM
+			$2004	- OAM pre-fill buffer		<--- Can be used for write breakpoint to locate initial filling of sprite data
+		Palette registers
+			$2006
+			$2007	- VRAM data register?
+		Other registers
+			$2005 	- Scroll register?
+			$2006 	- VRAM address register?
+
+		Palette data storage
+			$3F10 (003F10) - $3F1F (003F1F) 	-- https://nesdoug.com/2018/09/05/05-palettes/
+				and at $03F0 PRG (for my rom)
+
+		Pattern table 0
+			$0000 - $0FFF
+		Nametable 0
+			$2000 - $23BF	(technically it ends at $23FF)
+		Attribute table (for Nametable 0)
+			$23C0 - $23FF 	-- https://nesdoug.com/2018/09/05/05-palettes/
+
+	???
+		??? registers
+			$4014 - OAM xfer-initiating register
+		Input registers					<--- Can be used for read breakpoints
+			$4016 - Pad 1 input
+			$4017 - Pad 2 input
+
+	Bank layout
+		$0000 - Bank 2 (sprite and bkg data)
+			$0000 - Start of pattern table 1?
+			$1000 - Start of pattern table 2?
+		$8000 - Bank 0
+		$FFFA - Bank 1
+
+	Palette addresses
+		Each color is stored as a byte with bits corresponding to this bit-field layout:
+			7, 6 - Unused
+			5, 4 - Value
+			3, 2, 1, 0 - Hue
+		$3F00 to $3F0F - in VRAM (PPU) for bkg palette
+		$3F10 to $3F1F - in VRAM (PPU) for sprite palette
+
+
+
+Sorted by Purpose
+	PPU
+		Control registers
+			$2001
+			$2002
+
+		Palette registers
+			$2006
+			$2007
+
+		Sprite OAM DMA xfer related
+			$2003
+			$2004
+			$4014
+
+
+Mesen debugger acronyms:
+	NT - Nametable
+
+
+From: [2] https://emudev.de/nes-emulator/palettes-attribute-tables-and-sprites/
+	Attribute table locations:
+		Nametable 0 attribute table: 0x23C0 - 0x23FF
+		Nametable 1 attribute table: 0x27C0 - 0x27FF
+		Nametable 2 attribute table: 0x2BC0 - 0x2BFF
+		Nametable 3 attribute table: 0x2FC0 - 0x2FFF
+
+From: Nesdev
+	Tables
+		Pattern tables (0 and 1)
+			Address range	Size				Description
+			$0000-$0FFF	$1000 (4096 bytes -- 4Kb)	Pattern table 0
+			$1000-$1FFF	$1000 (4096 bytes -- 4Kb)	Pattern table 1
+		Nametables (0 through 3)
+			Address range	Size				Description
+			$2000-$23FF	$0400 (1024 bytes -- 1Kb)	Nametable 0
+			$2400-$27FF	$0400 (1024 bytes -- 1Kb)	Nametable 1
+			$2800-$2BFF	$0400 (1024 bytes -- 1Kb)	Nametable 2
+			$2C00-$2FFF	$0400 (1024 bytes -- 1Kb)	Nametable 3
+		Nametable mirrors (of 0 through 3)
+			Address range	Size				Description
+			$3000-$3EFF	$0F00	(3840 bytes)		Mirrors of $2000-$2EFF (Does NOT include Nametable 3's Attribute table!!!!)
+
+	Palettes
+		BG Palettes (0 through 3)
+			Address		Size				Purpose
+			$3F00						Universal background color
+			$3F01-$3F03					Background palette 0
+			$3F04						Unused (BG color?)
+			$3F05-$3F07					Background palette 1
+			$3F08						Unused (BG color?)
+			$3F09-$3F0B					Background palette 2
+			$3F0C						Unused (BG color?)
+			$3F0D-$3F0F					Background palette 3
+			$3F10						Unused (BG color?) Mirror of $3F00
+
+		Sprite palettes (0 through 3)
+			Address		Size				Purpose
+			$3F11-$3F13					Sprite palette 0
+			$3F14						Mirror of $3F04
+			$3F15-$3F17					Sprite palette 1
+			$3F18						Mirror of $3F08
+			$3F19-$3F1B					Sprite palette 2
+			$3F1C						Mirror of $3F0C
+			$3F1D-$3F1F					Sprite palette 3
+			$3F20-$3FFF	$00E0				Mirrors of $3F10-$3F1F
+
+
+From: [1] Nesdev and [2] https://emudev.de/nes-emulator/palettes-attribute-tables-and-sprites/
+	Tables
+		Pattern tables (0 and 1)
+			Address range	Size				Description
+			$0000-$0FFF	$1000 (4096 bytes -- 4Kb)	Pattern table 0
+			$1000-$1FFF	$1000 (4096 bytes -- 4Kb)	Pattern table 1
+
+		Nametables (0 through 3)	(4096 bytes -- 4Kb)
+			Address range		Size				Description
+			$2000-$23BF	      	$03C0 (960 bytes)		Tilemap 0
+				$23C0-$23FF	$0040 (64 bytes)		Attribute tbl 0 	[2]
+			$2400-$27BF		$03C0 (960 bytes)		Tilemap 1
+				$27C0-$27FF	$0040 (64 bytes)		Attribute tbl 1		[2]
+			$2800-$2BBF		$03C0 (960 bytes)		Tilemap 2
+				$2BC0-$27FF	$0040 (64 bytes)		Attribute tbl 2		[2]
+			$2C00-$2FBF		$03C0 (960 bytes)		Tilemap 3
+				$2FC0-$2FFF	$0040 (64 bytes)		Attribute tbl 3		[2]
+
+		Nametable mirrors (of 0 through 3)
+			Address range	Size				Description
+			$3000-$3EFF	$0F00	(3840 bytes)		Mirrors of $2000-$2EFF (Does NOT include Nametable 3's Attribute table!!!!)
+
+	Palettes
+		BG Palettes (0 through 3)
+			Address		Size				Purpose
+			$3F00						Universal background color
+			$3F01-$3F03					Background palette 0
+			$3F04						Unused (BG color?)
+			$3F05-$3F07					Background palette 1
+			$3F08						Unused (BG color?)
+			$3F09-$3F0B					Background palette 2
+			$3F0C						Unused (BG color?)
+			$3F0D-$3F0F					Background palette 3
+			$3F10						Unused (BG color?) Mirror of $3F00
+
+		Sprite palettes (0 through 3)
+			Address		Size				Purpose
+			$3F11-$3F13					Sprite palette 0
+			$3F14						Mirror of $3F04
+			$3F15-$3F17					Sprite palette 1
+			$3F18						Mirror of $3F08
+			$3F19-$3F1B					Sprite palette 2
+			$3F1C						Mirror of $3F0C
+			$3F1D-$3F1F					Sprite palette 3
+			$3F20-$3FFF	$00E0				Mirrors of $3F10-$3F1F
+
+
+
+
+
+Mesen
+	Memory Tools
+		Access Counters
+*** BizHawk
+
+
+$0106	30 	$0107	03
+
+Then back to Mesen
+	$C3FE:	E5 01	-> E5 02	-> E5 03	-> EA (NOP)
+						$C3FF	-> EA (NOP)
+	$C413:	E5 02	-> E5 01
+

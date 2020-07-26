@@ -1,0 +1,96 @@
+$0402 - X position of Eddie Valiant on screen?
+$0423 - Y position of Eddie Valiant on screen?
+$0572 - ID of selected inventory item
+$0604 - ???
+
+
+$04A7 - has value of 0x04 and 1 write as of rattle breakpoint
+	being triggered
+$0592 - has value of 0x03 (Rattle item pickup count) and looks
+	promising for inventory memory region with field
+	identifiers of increasing hex values
+
+2 sets of inventory memory data?
+1 entire set for which item id is in which slot
+and another entire set for the count of those items for
+that corresponding inventory slot???
+
+The currently selected inventory item is just before the
+actual inventory of the character. It represents the item
+id, NOT the inventory slot number. This value (selected
+inventory item ID), is at address: $0572
+
+Every inventory item has a set inventory slot, when selecting
+through the inventory, the inventory is checked for the next
+slot that is not 0, otherwise it continues to keep skipping
+ahead (looping around to the begining again) until it finds
+the next inventory slot that has a quantity greater than 0
+The Rattle is in slot 0F at address: $0592
+
+Item IDs:
+	$04 - Punch
+	$14 - Wallet (x2)
+	$1E - Rattle (x3)
+
+
+L521C - Function manipulating $0572
+L6819 - Picked up rattle, breakpoint triggered!!!! And Register Y
+	equaled 1E at time of break!!!!
+
+[1]  00: $0574: Dynamite
+[2]  01: $0576: Whistle
+[3]  02: $0578: Punch (Always set to 01, if set to 00, you can take the punch away from him lol)
+[4]  03: $057A: Bomb
+[5]  04: $057C: Flashlight
+[6]  05: $057E: Boxing Glove
+[7]  06: $0580: Detonator
+[8]  07: $0582: Crowbar
+[9]  08: $0584: Brick
+[10] 09: $0586: Portable Hole
+[11] 0A: $0588: Wallet
+[12] 0B: $058A: Cigar
+[13] 0C: $058C: Baseball
+[14] 0D: $058E: Six Shooter
+[15] 0E: $0590: Fish Bone
+[16] 0F: $0592: Rattle
+[17] 10: $0594: Heart
+[18] 11: $0596: Custard Pie
+[19] 12: $0598: Meat
+[20] 13: $059A: Cheese
+[21] 14: $059C: Password
+[22] 15: $059E: Spring Shoes
+[23] 16: $05A0: Rose
+[24] 17: $05A2: The Will
+[25] 18: $05A4: Dip Cannon
+
+
+
+Inventory item-selected sprite IDs:
+00: Dynamite
+02: Whistle
+04: Punch
+06: Bomb
+08: Flashlight
+0A: Boxing Glove
+0C: Detonator
+0E: Crowbar
+10: Brick
+12: Portable Hole
+14: Wallet
+16: Cigar
+18: Baseball
+1A: Six Shooter
+1C: Fishbone
+1E: Rattle
+20: Heart
+22: Custard Pie
+24: Meat
+26: Cheese
+28: Password
+2A: Spring Shoes
+2C: Rose
+2E: The Will (complete)
+30: Dip Cannon
+
+
+

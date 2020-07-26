@@ -1,0 +1,154 @@
+0. memory layout information and how bytes are used in each of the areas
+	A single tile (character) is 8 pixels by 8 pixels
+
+	To understand attributes, think of these 8x8 pixel as a single tile.
+	2 tiles by 2 tiles make up a tileset (so in each tileset, there are 4 tiles or 32x32 pixels)
+	2 tilesets by 2 tilesets make up a block (so in each block, there are 8x8 tiles or 64x64 pixels)
+
+
+
+1. (Game1) Most interesting pieces of information are stored below, roughly, $0600 in CPU ram
+	a. (Game1) Conditional breakpointing can be VERY helpful to filter out over triggering!
+2. (Game2) breakpointing in sprite OAM could be helpful, but it's volatile
+3. breakpointing in PPU ram could be helpful, but doesn't change often enough
+
+
+0. Memory layout
+	Instructional aides:
+		Visio graphic and Excel spreadsheet
+
+
+
+1. Castlevania 1 (Game1)
+	Instructional Aides:
+		Video
+
+	Time hack
+
+	Location:
+		Data:
+			CPU: $0042, $0043
+		Code:
+			** $C9EA ** / $C9EC, $CA9E, 
+			C9EA: (Triggered via write breakpoint on $0043)	10/1's column
+			CA9E: (Triggered via write breakpoint on $0042) 100's column
+
+			CA9E: DEC $01, X	-> DEC $00, X
+	Tools used:
+		Mesen
+			Memory Tools
+				Access Counters
+					Allow time to pass, each sec should yield 1 write operation, so sort by writes
+					Observe the memory viewer a little, try changing a byte when you think you have the right spot
+					Once you're pretty sure you have the right spot, label it and set a write-breakpoint
+					Look at code, try to find a subtraction operation type somewhere
+						We see a STA $00,X at $CA9A (The $00 address should already be resolved to iTime+0)
+						Notice the value of X, it's 42! Our time address starts at $0042!!!!
+
+						So where it says the instruction says STA ... change that to STA #$99, now instead of it subtracting a second each tick, it sets it to 99!
+
+	Deeper analysis:
+	    $A2AF - Update_Time:             
+  			LDA iTime+0              
+  			ORA iTime+1              
+  			BEQ L1A2E1               
+  			LDX #$42  		 <--- This is our 10's / 1's column address ($0042)!!!!               
+  			LDA #$01		 <--- Will be XOR'ed with FF shortly			(This will also, eventually be our patch point)
+  			JSR F1CA95               
+  			LDY #$01
+	    $F1CA95:                  
+			EOR #$FF                 <--- EOR = Exclusive OR of accumulator register (currently 0x01) with 0xFF (255 in dec)
+						 <--- At this point, register A is 254
+			SEC                      
+			ADC $00,X                <--- $00,X ($0042) (Value stored there: $82) added to register A (0xFE -- 254 in dec)
+						      (by adding to 254, and NOT 255, it causes the value to roll over to one less than what it was; an
+						       interesting way of subtracting 1!)
+			STA $00,X                <--- this is now stored back into $00,X ($0042)
+			BCS L1CAA0               
+			DEC $00,X                
+
+
+
+
+	Attack speed hack
+
+	Location:
+		Data:
+			CPU: $0568
+		Code:
+			$9A4B, $A2DB
+	Tools used:
+		Mesen
+			Memory Tools
+
+			Potential additions:
+				Using PPU breakpointing (sprite hit / collision masks with enemies and whip) create one-shot kills hack
+
+		Mesen
+			Debugger
+				Right click address operand, Find Occurances
+
+
+	Fun values:
+		Data:
+			CPU:
+			     $005C - Set this to 0 and freeze it and walk into torches for them to be destroyed (without actually whipping! :) )
+			     $0450 - Freeze value to moonwalk :)   (It controls the boolean flag for whether Simon's sprite is horizontally mirrored -- facing left or right)
+			     $031C - Set value to 1F and freeze (It controls the sprite / tile number for Simon; 1F is a ghoul -- combine it with $0450 for a "thrilling" experience lol)
+			     $046C - Setting this to 0x07 makes Simon normal, setting it to 0x08 makes him take a nap on the ground (death animation without actually dying)
+	     	Code:
+			$9A4B - LDA #$00 -> LDA #$13	(Unfortunately, because this same value is written to two places one after another, there
+							 is no way to set the first dest to #$00 and the 2nd dest to #$13. It controls the sprite
+							 animation frame number though, so setting it to like 13 means Simon has almost pre-emptively
+							 completed his whip animation; fast whipping essentially. But the >0 value causes the game
+							 to not register that the character is whipping)
+			$E406 - LDA $0568
+				CMP #$11	-> 
+
+			$E514 - CMP #$1D -> CMP #$00
+
+	$93E4 - LDA #$00 -> LDA #$01
+	$93EF - LDA #$00 -> LDA #$01
+1a. Castlevania 1
+	When whipping, $0584 (CPU memory) is set to 0x40 and then back to 0x00 afterwards. However, it is constantly written to, so breaking on writting is
+	going to flood you with trigger events. The way to deal with this is to set the breakpoint to conditionally break.
+	Set the condition to "a == $40"   (We choose A here because the instruction is STA)
+
+
+2. Who Framed Roger Rabit
+	Inventory hacking
+
+	Location:
+		$0576
+
+	Tools used:
+		Mesen
+			Cheat Finder
+				Get item that has number of (but limited) uses
+					Search for number value
+					Use one qty of that item
+					Search again...
+
+
+	Fun addresses:
+			Data:
+				CPU:
+					$F020: Start of (opening?) credits
+
+
+Metroid
+	Health hack
+
+	Location:
+
+	Tools used:
+
+
+Mesen
+	Game hacking is not always the most stable thing!
+	ALWAYS use File | Reload ROM when trying to correct a potential issue you are having with byte-patching;
+	Power cycle doesn't necessarily work!!!
+
+	Debugger
+		Right click address operand, Find Occurances
+Write-breakpoiint conditionals to prevent OVER-triggering
