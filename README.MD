@@ -10,6 +10,6 @@ share knowledge and hoping that maybe it help someone, I'm releasing them. I may
 update them at -some- point to be better organized and refined but for now, they're
 available as is.
 
-That said, maybe of the random blocks of text are my immediate thoughts (thoughts that I
+That said, many of the random blocks of text are my immediate thoughts (thoughts that I
 didn't want to loose) as they may help me in the future hone in on answering a question I
 had about that particular piece or component I was working on. 
