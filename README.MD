@@ -12,4 +12,4 @@ available as is.
 
 That said, many of the random blocks of text are my immediate thoughts (thoughts that I
 didn't want to loose) as they may help me in the future hone in on answering a question I
-had about that particular piece or component I was working on. 
+had about that particular piece or component I was working on at the time. 
